@@ -1,0 +1,27 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "javascript": "javascript",
+    "javascriptreact": "javascriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["className\\s*[:=]\\s*['\"`]([^'\"`]*)['\"`]", "([^\\s'\"`]+)"],
+    ["className\\s*[:=]\\s*\\{([^}]*)\\}", "['\"`]([^'\"`]*)['\"`]"],
+    ["class\\s*[:=]\\s*['\"`]([^'\"`]*)['\"`]", "([^\\s'\"`]+)"]
+  ],
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.hg/**",
+    "**/.svn/**"
+  ],
+  "tailwindCSS.rootFontSize": 16,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "css.validate": false,
+  "tailwindCSS.emmetCompletions": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}
+
