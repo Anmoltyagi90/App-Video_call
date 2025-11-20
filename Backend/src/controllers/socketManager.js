@@ -18,7 +18,9 @@ const connectToSocket = (server) => {
     console.log("New user connected:", Socket.id);
 
     // JOIN CALL
-    Socket.on("join-call", (path) => {
+    Socket.on("join-call", (data) => {
+      const path = typeof data === "string" ? data : (data?.roomId || "main-room");
+      
       if (connectons[path] === undefined) {
         connectons[path] = [];
       }
@@ -40,7 +42,7 @@ const connectToSocket = (server) => {
       if (messages[path] !== undefined) {
         for (let a = 0; a < messages[path].length; ++a) {
           io.to(Socket.id).emit(
-            "chart-message",
+            "chat-message",
             messages[path][a]["data"],
             messages[path][a]["sender"],
             messages[path][a]["socket-id-sender"]
@@ -55,7 +57,7 @@ const connectToSocket = (server) => {
     });
 
     // CHAT MESSAGE
-    Socket.on("chart-message", (data, sender) => {
+    Socket.on("chat-message", (data, sender) => {
       const [matchingRoom, found] = Object.entries(connectons).reduce(
         ([room, isFound], [roomKey, roomValue]) => {
           if (!isFound && roomValue.includes(Socket.id)) {
@@ -80,7 +82,7 @@ const connectToSocket = (server) => {
         console.log("message", matchingRoom, ":", sender, data);
 
         connectons[matchingRoom].forEach((elem) => {
-          io.to(elem).emit("chart-message", data, sender, Socket.id);
+          io.to(elem).emit("chat-message", data, sender, Socket.id);
         });
       }
     });

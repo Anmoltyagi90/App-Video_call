@@ -157,7 +157,15 @@ export default function VideoMeetComponent() {
   };
 
   const handleIncomingMessage = (sender, data) => {
-    setMessages((prev) => [...prev, { sender, data }]);
+    if (!data || !data.trim()) return;
+    const trimmedData = data.trim();
+    if (trimmedData.length === 0) return;
+    
+    setMessages((prev) => [...prev, { 
+      id: Date.now() + Math.random(), 
+      sender, 
+      data: trimmedData 
+    }]);
     if (!showChatRef.current) {
       setNewMessages((count) => count + 1);
     }
@@ -358,13 +366,15 @@ export default function VideoMeetComponent() {
   const sendMessage = () => {
     if (!socketRef.current) return;
     const trimmed = message.trim();
-    if (!trimmed) return;
-
-    socketRef.current.emit("chat-message", trimmed, username || "You");
-    setMessages((prev) => [...prev, { sender: username || "You", data: trimmed }]);
-    if (!showChatRef.current) {
-      setNewMessages((count) => count + 1);
+    if (!trimmed || trimmed.length === 0) return;
+    if (trimmed.length > 1000) {
+      alert("Message is too long. Maximum 1000 characters allowed.");
+      return;
     }
+
+    const senderName = username || "You";
+    
+    socketRef.current.emit("chat-message", trimmed, senderName);
     setMessage("");
   };
 
@@ -438,8 +448,8 @@ export default function VideoMeetComponent() {
 
               <div className="flex-grow overflow-y-auto space-y-3">
                 {messages.length > 0 ? (
-                  messages.map((item, i) => (
-                    <div key={i} className="bg-gray-700 p-2 rounded">
+                  messages.map((item) => (
+                    <div key={item.id} className="bg-gray-700 p-2 rounded">
                       <p className="font-bold text-blue-400">{item.sender}</p>
                       <p>{item.data}</p>
                     </div>
@@ -453,12 +463,19 @@ export default function VideoMeetComponent() {
                 <input
                   value={message}
                   onChange={handleMessageChange}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      sendMessage();
+                    }
+                  }}
+                  maxLength={1000}
                   className="flex-grow bg-gray-700 px-3 py-2 rounded outline-none"
                   placeholder="Type your message"
                 />
                 <button
                   onClick={sendMessage}
-                  className="bg-blue-600 px-4 rounded hover:bg-blue-500"
+                  disabled={!message.trim()}
+                  className="bg-blue-600 px-4 rounded hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed"
                 >
                   Send
                 </button>

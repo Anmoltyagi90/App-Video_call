@@ -14,8 +14,27 @@ function HomeComponent() {
     const { addToUserHistory } = useContext(AuthContext);
 
     let handleJoinVideoCall = async () => {
-        await addToUserHistory(meetingCode)
-        navigate(`/${meetingCode}`)
+        if (!meetingCode.trim()) {
+            alert("Please enter a meeting code");
+            return;
+        }
+        
+        const meetingCodeToJoin = meetingCode.trim();
+        console.log("Joining meeting with code:", meetingCodeToJoin);
+        
+        // Navigate immediately, don't wait for API call
+        navigate(`/${meetingCodeToJoin}`);
+        
+        // Try to add to history in background (fire and forget)
+        // Silently handle errors since this is non-critical
+        addToUserHistory(meetingCodeToJoin)
+            .then(() => {
+                console.log("History added successfully");
+            })
+            .catch((error) => {
+                // Silently fail - this is non-critical and shouldn't block navigation
+                // The 404 is expected if backend isn't deployed or endpoint doesn't exist
+            });
     }
 
     return (
@@ -64,6 +83,11 @@ function HomeComponent() {
 
                             <TextField
                                 onChange={e => setMeetingCode(e.target.value)}
+                                onKeyPress={e => {
+                                    if (e.key === 'Enter') {
+                                        handleJoinVideoCall();
+                                    }
+                                }}
                                 id="outlined-basic"
                                 label="Meeting Code"
                                 variant="outlined"
